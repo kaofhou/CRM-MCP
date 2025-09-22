@@ -1,0 +1,1161 @@
+
+                <!DOCTYPE html>
+                <html lang="zh">
+                <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>合同详情</title>
+                  <style>
+                    *,
+                    *::before,
+                    *::after {
+                      box-sizing: border-box;
+                      margin: 0;
+                    }
+                    .iframe-outer {
+                      position: fixed;
+                      top: 0;
+                      left: 0;
+                      bottom: 0;
+                      right: 0;
+                      display: flex;
+                      justify-content: center;
+                      background-color: #E0E0E0;
+                    }
+                    .iframe-wrapper {
+                      width: 100%;
+                      height: 100%;
+                      margin: 0 auto;
+                      transform-origin: center top;
+                      flex-shrink: 0;
+                    }
+                    #dynamicIframe {
+                      border: none;
+                      width: 100%;
+                      height: 100%;
+                    }
+                  </style>
+                  <script>
+                const width = 1920
+                const height = 1080
+                const resolutionRatio = width && height ? width / height : 1
+                const pageNameMap = {
+                  'sales_contract_list': '销售合同列表',
+    'sales_contract_select_product': '新建合同 - 选择产品',
+    'sales_contract_confirm_party_a': '新建合同 - 确定甲方信息',
+    'sales_contract_generate_download': '新建合同 - 生成并下载',
+    'sales_contract_detail': '合同详情'
+                }
+                function setIframeSize(w, h) {
+                  const currentContainerRadio = w / h
+                  let widthValue = w
+                  let heightValue = h
+                  let zoom = 1
+                  if (currentContainerRadio > resolutionRatio) {
+                    widthValue = h * resolutionRatio
+                    heightValue = h
+                  } else {
+                    widthValue = w
+                    heightValue = w / resolutionRatio
+                  }
+                  zoom = width ? widthValue / width : 1
+                  return {
+                    width: widthValue / zoom + 'px',
+                    height: heightValue / zoom + 'px',
+                    zoom,
+                  }
+                }
+                function adjustIframeSize() {
+                  const iframeWrapper = document.querySelector(".iframe-wrapper")
+                  const { width, height, zoom } = setIframeSize(window.innerWidth, window.innerHeight)
+                  iframeWrapper.style.height = height
+                  iframeWrapper.style.width = width
+                  iframeWrapper.style.transform = 'scale(' + zoom + ')'
+                }
+                function sanitizeFilename(name) {
+                  return name.replace(/[\/:*?"<>|]/g, '_')
+                }
+                function handlePostMessage(event) {
+                  if (!event.data) {
+                    return
+                  }
+                  const { type, targetPageId } = event.data
+                  const targetPageName = pageNameMap[targetPageId]
+                  if (type === "iframeNavigation" && targetPageId && targetPageName) {
+                    window.location.href = targetPageName + '.html'
+                  }
+                }
+                window.addEventListener('message', handlePostMessage)
+                window.onload = adjustIframeSize
+                window.onresize = adjustIframeSize
+                window.onunload = () => {
+                  window.removeEventListener('message', handlePostMessage)
+                }
+              </script>
+                </head>
+                <body>
+                  <div class="iframe-outer">
+                    <div class="iframe-wrapper">
+                      <iframe id="dynamicIframe" srcdoc='<html lang="zh-CN" data-theme="light"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合同详情</title>
+    <link href="./assets/static/uxbot/daisyui@5.css" rel="stylesheet" type="text/css">
+    <script src="./assets/static/uxbot/tailwind-browser@4.js"></script>
+    <link href="./assets/static/uxbot/daisyui-themes.css" rel="stylesheet" type="text/css">
+    <script src="./assets/3/3.1.1/iconify.min.js"></script>
+    <style>
+/* CSS code for common usage*/
+/* daisyUI Theme Variables Customization
+* Based on the selected daisyUI theme and UI guidance requirements,
+* customize only the CSS variables that need to be different from the theme defaults.
+* Available theme variables for customization:
+*/
+
+/* CRM Platform theme customization for minimalist whitespace design */
+:root {
+  /* Primary colors - Refined muted blue for key interactive elements */
+  --color-primary: rgba(99, 115, 129, 1); /* Muted blue-gray */
+  --color-primary-content: rgba(255, 255, 255, 1);
+  
+  /* Secondary/Accent - Subtle complementary color for highlights */
+  --color-secondary: rgba(134, 150, 165, 1); /* Desaturated teal-gray */
+  --color-secondary-content: rgba(255, 255, 255, 1);
+  
+  /* Accent - Soft rose for minimal highlights */
+  --color-accent: rgba(156, 163, 175, 1); /* Light gray */
+  --color-accent-content: rgba(255, 255, 255, 1);
+  
+  /* Base backgrounds - Pure white and subtle grays */
+  --color-base-100: rgba(255, 255, 255, 1); /* Pure white for main content */
+  --color-base-200: rgba(249, 250, 251, 1); /* Very light gray for sections */
+  --color-base-300: rgba(243, 244, 246, 1); /* Light gray for subtle separation */
+  --color-base-content: rgba(51, 51, 51, 1); /* Dark charcoal for text */
+  
+  /* Neutral colors */
+  --color-neutral: rgba(107, 114, 128, 1); /* Medium gray */
+  --color-neutral-content: rgba(255, 255, 255, 1);
+  
+  /* Semantic colors - Muted for calm aesthetic */
+  --color-success: rgba(34, 197, 94, 0.8); /* Muted green */
+  --color-success-content: rgba(255, 255, 255, 1);
+  --color-warning: rgba(245, 158, 11, 0.8); /* Subtle amber */
+  --color-warning-content: rgba(255, 255, 255, 1);
+  --color-error: rgba(239, 68, 68, 0.8); /* Soft red */
+  --color-error-content: rgba(255, 255, 255, 1);
+  --color-info: rgba(59, 130, 246, 0.8); /* Light blue */
+  --color-info-content: rgba(255, 255, 255, 1);
+  
+  /* Border radius for modern feel */
+  --radius-box: 0.5rem; /* 8px for cards and containers */
+  --radius-field: 0.375rem; /* 6px for inputs and buttons */
+  --radius-selector: 0.375rem; /* 6px for selectors */
+  
+  /* Border for minimal separation */
+  --border: 1px;
+}
+
+/* Additional custom styles for minimalist design */
+.transition-smooth {
+  transition: all 0.2s ease-in-out;
+}
+
+.shadow-minimal {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+.shadow-elevated {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+}
+
+/* Header sticky behavior */
+.header-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+/* Typography weights for hierarchy */
+.font-medium-custom {
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.font-semibold-custom {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Generous spacing for whitespace design */
+.section-padding {
+  padding: 4rem 3rem;
+}
+
+.content-spacing {
+  margin-bottom: 2rem;
+}
+
+/* Focus states for accessibility */
+.focus-visible:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Hover states for interactive elements */
+.hover-subtle:hover {
+  background-color: var(--color-base-200);
+  transform: translateY(-1px);
+}
+</style> <style>
+    /* Custom CSS styles for the page */
+    .timeline hr {
+        height: 2px;
+    }
+    .timeline li:not(:last-child) hr:last-of-type {
+        height: 100%;
+    }
+    .prose strong {
+        color: var(--color-primary);
+    }
+</style>
+  <script src="./assets/static/uxbot/25_6/holder.js"></script></head>
+  <body class="bg-base-200 font-sans">
+    <div class="flex h-screen flex-col">
+      <div data-section-id="common_header" data-section-type="common_header" class="navbar bg-base-100 text-base-content shadow-minimal header-sticky border-b border-base-200">
+  <!-- Mobile Menu Button -->
+  <div class="navbar-start lg:hidden">
+    <button class="btn btn-square btn-ghost" onclick="toggleMobileMenu()">
+      <span class="iconify" data-icon="heroicons:bars-3" data-width="24"></span>
+    </button>
+  </div>
+  <!-- Logo and Brand -->
+  <div class="navbar-start hidden lg:flex">
+    <a class="btn btn-ghost text-xl font-semibold-custom" onclick="navigateTo(window.APP_GLOBALS?.homeDashboard || &#39;login&#39;)"><span class="iconify text-primary" data-icon="heroicons:chart-pie" data-width="32"></span><span>智能CRM平台</span></a>
+  </div>
+  <!-- Main Navigation - Role-based -->
+  <div class="navbar-center hidden lg:flex">
+    <ul class="menu menu-horizontal px-1 text-sm">
+      <!-- Sales Role Navigation -->
+      <li class="sales-nav hidden">
+        <details class="dropdown">
+          <summary class="btn btn-ghost iv42f spark-custom-iv42f" id="iv42f">
+            <span class="iaw0z spark-custom-iaw0z" id="iaw0z">客户管理</span>
+          </summary>
+          <ul class="menu dropdown-content bg-base-100 text-base-content rounded-box z-10 w-52 p-2 shadow-elevated border border-base-200">
+            <li>
+              <a onclick="navigateTo(&#39;sales_customer_list&#39;)"><span>客户列表</span></a>
+            </li>
+            <li>
+              <a onclick="navigateTo(&#39;sales_customer_public_pool&#39;)"><span>公海池</span></a>
+            </li>
+            <li>
+              <a onclick="navigateTo(&#39;sales_my_customers&#39;)"><span>我负责的客户</span></a>
+            </li>
+          </ul>
+        </details>
+      </li>
+      <li class="sales-nav hidden">
+        <a class="btn btn-ghost" onclick="navigateTo(&#39;sales_schedule_calendar&#39;)"><span>日程安排</span></a>
+      </li>
+      <li class="sales-nav hidden">
+        <a class="btn btn-ghost" onclick="navigateTo(&#39;sales_opportunity_list&#39;)"><span class="ixwz7 spark-custom-ixwz7" id="ixwz7">商机管理</span></a>
+      </li>
+      <li class="sales-nav hidden">
+        <a class="btn btn-ghost" onclick="navigateTo(&#39;sales_contract_list&#39;)"><span class="ic3ch spark-custom-ic3ch" id="ic3ch">合同管理</span></a>
+      </li>
+      <li class="sales-nav hidden">
+        <a class="btn btn-ghost" id="itta1" onclick="navigateTo(&#39;sales_ai_workbench&#39;)"><span>AI工作台</span></a>
+      </li>
+      <!-- Decision Role Navigation -->
+      <li class="decision-nav hidden">
+        <a class="btn btn-ghost" onclick="navigateTo(&#39;decision_sales_personnel_management&#39;)"><span>销售管理</span></a>
+      </li>
+      <li class="decision-nav hidden">
+        <a class="btn btn-ghost" onclick="navigateTo(&#39;decision_contract_approval_list&#39;)"><span>合同审批</span></a>
+      </li>
+      <li class="decision-nav hidden">
+        <a class="btn btn-ghost" onclick="navigateTo(&#39;decision_ai_workbench&#39;)"><span>AI分析</span></a>
+      </li>
+      <!-- Tech Role Navigation -->
+      <li class="tech-nav hidden">
+        <a class="btn btn-ghost" onclick="navigateTo(&#39;tech_personnel_management&#39;)"><span>人员管理</span></a>
+      </li>
+      <li class="tech-nav hidden">
+        <a class="btn btn-ghost" onclick="navigateTo(&#39;tech_product_management&#39;)"><span>商品管理</span></a>
+      </li>
+      <li class="tech-nav hidden">
+        <a class="btn btn-ghost" onclick="navigateTo(&#39;tech_system_management&#39;)"><span>系统管理</span></a>
+      </li>
+      <li class="tech-nav hidden">
+        <a class="btn btn-ghost" onclick="navigateTo(&#39;tech_ai_workbench&#39;)"><span>AI运维</span></a>
+      </li>
+    </ul>
+  </div>
+  <!-- Right Side: Search, User Menu -->
+  <div class="navbar-end gap-2 i42gc spark-custom-i42gc" id="i42gc">
+    <!-- Global Search -->
+    <div class="form-control hidden lg:flex">
+      <div class="join">
+        <input type="text" id="global-search-input" placeholder="搜索客户、合同..." class="input input-bordered input-sm join-item w-48"><button class="btn btn-square btn-sm join-item" onclick="handleGlobalSearch()">
+          <span class="iconify" data-icon="heroicons:magnifying-glass" data-width="16"></span>
+        </button>
+      </div>
+    </div>
+    <!-- User Menu -->
+    <div class="dropdown dropdown-end">
+      <button tabindex="0" class="btn btn-ghost btn-sm">
+        <div class="avatar placeholder inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-content">
+          <span class="flex items-center justify-center h-full font-semibold text-sm">用</span>
+        </div>
+        <span class="hidden lg:inline">用户中心</span>
+      </button>
+      <ul tabindex="0" class="dropdown-content menu bg-base-100 text-base-content rounded-box z-10 w-48 p-2 shadow-elevated border border-base-200">
+        <li>
+          <a onclick="navigateTo(&#39;user_profile_settings&#39;)"><span>个人设置</span></a>
+        </li>
+        <li class="divider"></li>
+        <li>
+          <a onclick="handleLogout()"><span>退出登录</span></a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- Mobile Menu Overlay -->
+  <div id="mobile-menu" class="fixed inset-0 z-50 lg:hidden hidden bg-black bg-opacity-50">
+    <div class="fixed left-0 top-0 h-full w-80 bg-base-100 shadow-xl">
+      <div class="p-4 border-b border-base-200">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold">导航菜单</h2>
+          <button class="btn btn-ghost btn-sm" onclick="toggleMobileMenu()">
+            <span class="iconify" data-icon="heroicons:x-mark" data-width="24"></span>
+          </button>
+        </div>
+      </div>
+      <ul class="menu p-4 text-base-content">
+        <!-- Mobile navigation items will be populated based on user role -->
+        <li class="mobile-sales-nav hidden">
+          <a onclick="navigateTo(&#39;sales_customer_list&#39;)"><span>客户管理</span></a>
+        </li>
+        <li class="mobile-sales-nav hidden">
+          <a onclick="navigateTo(&#39;sales_schedule_calendar&#39;)"><span>日程安排</span></a>
+        </li>
+        <li class="mobile-sales-nav hidden">
+          <a onclick="navigateTo(&#39;sales_opportunity_list&#39;)"><span>商机管理</span></a>
+        </li>
+        <li class="mobile-sales-nav hidden">
+          <a onclick="navigateTo(&#39;sales_contract_list&#39;)"><span>合同管理</span></a>
+        </li>
+        <li class="mobile-decision-nav hidden">
+          <a onclick="navigateTo(&#39;decision_sales_personnel_management&#39;)"><span>销售管理</span></a>
+        </li>
+        <li class="mobile-decision-nav hidden">
+          <a onclick="navigateTo(&#39;decision_contract_approval_list&#39;)"><span>合同审批</span></a>
+        </li>
+        <li class="mobile-tech-nav hidden">
+          <a onclick="navigateTo(&#39;tech_personnel_management&#39;)"><span>人员管理</span></a>
+        </li>
+        <li class="mobile-tech-nav hidden">
+          <a onclick="navigateTo(&#39;tech_product_management&#39;)"><span>商品管理</span></a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+      <div class="flex flex-1 overflow-hidden">
+        <div data-section-id="common_sidebar" data-section-type="common_sidebar" class="flex flex-col h-full bg-base-100 border-r border-base-200 transition-all duration-300 ease-in-out w-64 sidebar-normal">
+  <!-- Sidebar Header -->
+  <div class="flex items-center justify-between p-4 border-b border-base-200 bg-base-50">
+    <h2 class="text-lg font-semibold-custom text-primary sidebar-title">
+      导航菜单
+    </h2>
+    <button class="btn btn-ghost btn-sm hover-subtle" onclick="toggleSidebar()">
+      <span class="iconify sidebar-toggle-icon transition-smooth" data-icon="heroicons:chevron-left" data-width="20"></span>
+    </button>
+  </div>
+  <!-- Navigation Menu -->
+  <nav class="flex-1 overflow-y-auto p-3">
+    <ul class="menu menu-vertical w-full space-y-2">
+      <!-- Sales Role Navigation -->
+      <div class="sales-sidebar-nav hidden">
+        <!-- Customer Management Section -->
+        <li class="menu-section">
+          <details class="group">
+            <summary class="flex items-center gap-3 p-3 hover:bg-base-200 rounded-lg cursor-pointer sidebar-item transition-smooth ifrcyi spark-custom-ifrcyi" id="ifrcyi">
+              <span class="iconify text-primary" data-icon="heroicons:users" data-width="20"></span><span class="sidebar-text">客户管理</span>
+            </summary>
+            <ul class="ml-8 mt-2 space-y-1 sidebar-submenu">
+              <li>
+                <a class="p-2 hover:bg-base-200 rounded transition-smooth" onclick="navigateTo(&#39;sales_customer_list&#39;)"><span>客户列表</span></a>
+              </li>
+              <li>
+                <a class="p-2 hover:bg-base-200 rounded transition-smooth" onclick="navigateTo(&#39;sales_customer_public_pool&#39;)"><span>公海池</span></a>
+              </li>
+              <li>
+                <a class="p-2 hover:bg-base-200 rounded transition-smooth" onclick="navigateTo(&#39;sales_my_customers&#39;)"><span>我负责的客户</span></a>
+              </li>
+            </ul>
+          </details>
+        </li>
+        <!-- Schedule Management -->
+        <li class="menu-section">
+          <a class="flex items-center gap-3 p-3 hover:bg-base-200 rounded-lg sidebar-item transition-smooth iu3est spark-custom-iu3est" id="iu3est" onclick="navigateTo(&#39;sales_schedule_calendar&#39;)"><span class="iconify text-primary" data-icon="heroicons:calendar-days" data-width="20"></span><span class="sidebar-text">日程安排</span></a>
+        </li>
+        <!-- Opportunity Management -->
+        <li class="menu-section">
+          <a class="flex items-center gap-3 p-3 hover:bg-base-200 rounded-lg sidebar-item transition-smooth" onclick="navigateTo(&#39;sales_opportunity_list&#39;)"><span class="iconify text-primary" data-icon="heroicons:light-bulb" data-width="20"></span><span class="sidebar-text">商机管理</span></a>
+        </li>
+        <!-- Contract Management -->
+        <li class="menu-section">
+          <a class="flex items-center gap-3 p-3 hover:bg-base-200 rounded-lg sidebar-item transition-smooth icw8yk spark-custom-icw8yk" id="icw8yk" onclick="navigateTo(&#39;sales_contract_list&#39;)"><span class="iconify text-primary" data-icon="heroicons:document-text" data-width="20"></span><span class="sidebar-text">合同管理</span></a>
+        </li>
+        <!-- AI Workbench -->
+        <li class="menu-section">
+          <a class="flex items-center gap-3 p-3 hover:bg-base-200 rounded-lg sidebar-item transition-smooth ibh44j spark-custom-ibh44j" id="ibh44j" onclick="navigateTo(&#39;sales_ai_workbench&#39;)"><span class="iconify text-primary" data-icon="heroicons:sparkles" data-width="20"></span><span class="sidebar-text">AI工作台</span></a>
+        </li>
+      </div>
+      <!-- Decision Role Navigation -->
+      <div class="decision-sidebar-nav hidden">
+        <!-- Sales Personnel Management -->
+        <li class="menu-section">
+          <a class="flex items-center gap-3 p-3 hover:bg-base-200 rounded-lg sidebar-item transition-smooth" onclick="navigateTo(&#39;decision_sales_personnel_management&#39;)"><span class="iconify text-primary" data-icon="heroicons:user-group" data-width="20"></span><span class="sidebar-text">销售人员管理</span></a>
+        </li>
+        <!-- Contract Approval -->
+        <li class="menu-section">
+          <a class="flex items-center gap-3 p-3 hover:bg-base-200 rounded-lg sidebar-item transition-smooth" onclick="navigateTo(&#39;decision_contract_approval_list&#39;)"><span class="iconify text-primary" data-icon="heroicons:clipboard-document-check" data-width="20"></span><span class="sidebar-text">合同审批</span></a>
+        </li>
+        <!-- AI Analysis -->
+        <li class="menu-section">
+          <a class="flex items-center gap-3 p-3 hover:bg-base-200 rounded-lg sidebar-item transition-smooth" onclick="navigateTo(&#39;decision_ai_workbench&#39;)"><span class="iconify text-primary" data-icon="heroicons:chart-bar-square" data-width="20"></span><span class="sidebar-text">AI行为分析</span></a>
+        </li>
+      </div>
+      <!-- Tech Role Navigation -->
+      <div class="tech-sidebar-nav hidden">
+        <!-- Personnel Management -->
+        <li class="menu-section">
+          <a class="flex items-center gap-3 p-3 hover:bg-base-200 rounded-lg sidebar-item transition-smooth" onclick="navigateTo(&#39;tech_personnel_management&#39;)"><span class="iconify text-primary" data-icon="heroicons:users" data-width="20"></span><span class="sidebar-text">人员管理</span></a>
+        </li>
+        <!-- Product Management -->
+        <li class="menu-section">
+          <a class="flex items-center gap-3 p-3 hover:bg-base-200 rounded-lg sidebar-item transition-smooth" onclick="navigateTo(&#39;tech_product_management&#39;)"><span class="iconify text-primary" data-icon="heroicons:cube" data-width="20"></span><span class="sidebar-text">商品管理</span></a>
+        </li>
+        <!-- System Management -->
+        <li class="menu-section">
+          <a class="flex items-center gap-3 p-3 hover:bg-base-200 rounded-lg sidebar-item transition-smooth" onclick="navigateTo(&#39;tech_system_management&#39;)"><span class="iconify text-primary" data-icon="heroicons:cog-6-tooth" data-width="20"></span><span class="sidebar-text">后台系统管理</span></a>
+        </li>
+        <!-- AI Operations -->
+        <li class="menu-section">
+          <a class="flex items-center gap-3 p-3 hover:bg-base-200 rounded-lg sidebar-item transition-smooth" onclick="navigateTo(&#39;tech_ai_workbench&#39;)"><span class="iconify text-primary" data-icon="heroicons:cpu-chip" data-width="20"></span><span class="sidebar-text">AI自动化运维</span></a>
+        </li>
+      </div>
+    </ul>
+  </nav>
+  <!-- Sidebar Footer -->
+  <div class="p-4 border-t border-base-200 bg-base-50">
+    <div class="flex items-center gap-3 sidebar-footer">
+      <span class="iconify text-secondary" data-icon="heroicons:information-circle" data-width="20"></span>
+      <div class="sidebar-text">
+        <p class="text-sm text-base-content/70">技术支持</p>
+        <p class="font-semibold-custom text-primary text-sm">400-888-8888</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+        <main class="flex-1 flex flex-col overflow-hidden">
+          <div data-section-id="common_breadcrumb" data-section-type="common_section" class="breadcrumb-container bg-base-100 border-b border-base-200 px-6 py-4">
+  <div class="text-sm breadcrumbs">
+    <ul id="breadcrumb-list">
+      <!-- Breadcrumb items will be dynamically generated -->
+    </ul>
+  </div>
+</div>
+
+<style>
+[data-section-id="common_breadcrumb"] {
+  font-family: "Inter", "SF Pro Display", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+}
+
+[data-section-id="common_breadcrumb"] .breadcrumbs ul li a {
+  color: var(--color-primary);
+  transition: all 0.2s ease-in-out;
+}
+
+[data-section-id="common_breadcrumb"] .breadcrumbs ul li a:hover {
+  color: var(--color-secondary);
+  text-decoration: underline;
+}
+
+[data-section-id="common_breadcrumb"] .breadcrumbs ul li:last-child {
+  color: var(--color-base-content);
+  font-weight: 500;
+}
+
+[data-section-id="common_breadcrumb"] .breadcrumb-icon {
+  margin-right: 0.25rem;
+}
+</style>
+
+<script>
+(function() {
+  // Breadcrumb-specific JavaScript functionality
+  
+  // Generate breadcrumb based on current page and navigation path
+  window.setBreadcrumb = function(breadcrumbData) {
+    const breadcrumbList = document.querySelector(&#39;#breadcrumb-list&#39;);
+    if (!breadcrumbList || !breadcrumbData) return;
+    
+    // Clear existing breadcrumbs
+    breadcrumbList.innerHTML = &#39;&#39;;
+    
+    // Always start with appropriate dashboard based on user role
+    const userRole = window.APP_GLOBALS?.userRole || &#39;sales&#39;;
+    const dashboardConfigs = {
+      &#39;sales&#39;: { title: &#39;销售仪表盘&#39;, pageId: &#39;sales_dashboard&#39;, icon: &#39;heroicons:chart-pie&#39; },
+      &#39;decision&#39;: { title: &#39;决策仪表盘&#39;, pageId: &#39;decision_dashboard&#39;, icon: &#39;heroicons:chart-bar&#39; },
+      &#39;tech&#39;: { title: &#39;技术仪表盘&#39;, pageId: &#39;tech_dashboard&#39;, icon: &#39;heroicons:cog-6-tooth&#39; }
+    };
+    
+    const dashboardConfig = dashboardConfigs[userRole];
+    const homeItem = document.createElement(&#39;li&#39;);
+    homeItem.innerHTML = `<a onclick="navigateTo(&#39;${dashboardConfig.pageId}&#39;)"><span class="flex items-center gap-1"><span class="iconify breadcrumb-icon" data-icon="${dashboardConfig.icon}" data-width="16"></span><span>${dashboardConfig.title}</span></span></a>`;
+    breadcrumbList.appendChild(homeItem);
+    
+    // Add breadcrumb items
+    breadcrumbData.forEach((item, index) => {
+      const listItem = document.createElement(&#39;li&#39;);
+      
+      if (index === breadcrumbData.length - 1) {
+        // Last item (current page) - not clickable
+        listItem.innerHTML = `<span class="flex items-center gap-1">${item.icon ? `<span class="iconify breadcrumb-icon" data-icon="${item.icon}" data-width="16"></span>` : &#39;&#39;}<span>${item.title}</span></span>`;
+      } else {
+        // Clickable items
+        listItem.innerHTML = `<a onclick="navigateTo(&#39;${item.pageId}&#39;)"><span class="flex items-center gap-1">${item.icon ? `<span class="iconify breadcrumb-icon" data-icon="${item.icon}" data-width="16"></span>` : &#39;&#39;}<span>${item.title}</span></span></a>`;
+      }
+      
+      breadcrumbList.appendChild(listItem);
+    });
+  };
+  
+  // Predefined breadcrumb configurations for CRM pages
+  window.getPageBreadcrumb = function(pageId) {
+    const breadcrumbConfigs = {
+      // Sales Role Pages
+      &#39;sales_customer_list&#39;: [{ title: &#39;客户管理&#39;, pageId: &#39;sales_customer_list&#39;, icon: &#39;heroicons:users&#39; }],
+      &#39;sales_customer_public_pool&#39;: [
+        { title: &#39;客户管理&#39;, pageId: &#39;sales_customer_list&#39;, icon: &#39;heroicons:users&#39; },
+        { title: &#39;公海池&#39;, pageId: &#39;sales_customer_public_pool&#39;, icon: &#39;heroicons:rectangle-stack&#39; }
+      ],
+      &#39;sales_my_customers&#39;: [
+        { title: &#39;客户管理&#39;, pageId: &#39;sales_customer_list&#39;, icon: &#39;heroicons:users&#39; },
+        { title: &#39;我负责的客户&#39;, pageId: &#39;sales_my_customers&#39;, icon: &#39;heroicons:user-circle&#39; }
+      ],
+      &#39;sales_customer_detail&#39;: [
+        { title: &#39;客户管理&#39;, pageId: &#39;sales_customer_list&#39;, icon: &#39;heroicons:users&#39; },
+        { title: &#39;客户详情&#39;, pageId: &#39;sales_customer_detail&#39;, icon: &#39;heroicons:identification&#39; }
+      ],
+      &#39;sales_schedule_calendar&#39;: [{ title: &#39;日程安排&#39;, pageId: &#39;sales_schedule_calendar&#39;, icon: &#39;heroicons:calendar-days&#39; }],
+      &#39;sales_new_schedule&#39;: [
+        { title: &#39;日程安排&#39;, pageId: &#39;sales_schedule_calendar&#39;, icon: &#39;heroicons:calendar-days&#39; },
+        { title: &#39;新建日程&#39;, pageId: &#39;sales_new_schedule&#39;, icon: &#39;heroicons:plus-circle&#39; }
+      ],
+      &#39;sales_schedule_detail&#39;: [
+        { title: &#39;日程安排&#39;, pageId: &#39;sales_schedule_calendar&#39;, icon: &#39;heroicons:calendar-days&#39; },
+        { title: &#39;日程详情&#39;, pageId: &#39;sales_schedule_detail&#39;, icon: &#39;heroicons:clock&#39; }
+      ],
+      &#39;sales_opportunity_list&#39;: [{ title: &#39;商机管理&#39;, pageId: &#39;sales_opportunity_list&#39;, icon: &#39;heroicons:light-bulb&#39; }],
+      &#39;sales_new_opportunity&#39;: [
+        { title: &#39;商机管理&#39;, pageId: &#39;sales_opportunity_list&#39;, icon: &#39;heroicons:light-bulb&#39; },
+        { title: &#39;新建商机&#39;, pageId: &#39;sales_new_opportunity&#39;, icon: &#39;heroicons:plus-circle&#39; }
+      ],
+      &#39;sales_opportunity_detail&#39;: [
+        { title: &#39;商机管理&#39;, pageId: &#39;sales_opportunity_list&#39;, icon: &#39;heroicons:light-bulb&#39; },
+        { title: &#39;商机详情&#39;, pageId: &#39;sales_opportunity_detail&#39;, icon: &#39;heroicons:document-magnifying-glass&#39; }
+      ],
+      &#39;sales_contract_list&#39;: [{ title: &#39;合同管理&#39;, pageId: &#39;sales_contract_list&#39;, icon: &#39;heroicons:document-text&#39; }],
+      &#39;sales_new_contract&#39;: [
+        { title: &#39;合同管理&#39;, pageId: &#39;sales_contract_list&#39;, icon: &#39;heroicons:document-text&#39; },
+        { title: &#39;新建合同&#39;, pageId: &#39;sales_new_contract&#39;, icon: &#39;heroicons:document-plus&#39; }
+      ],
+      &#39;sales_contract_detail&#39;: [
+        { title: &#39;合同管理&#39;, pageId: &#39;sales_contract_list&#39;, icon: &#39;heroicons:document-text&#39; },
+        { title: &#39;合同详情&#39;, pageId: &#39;sales_contract_detail&#39;, icon: &#39;heroicons:eye&#39; }
+      ],
+      &#39;sales_ai_workbench&#39;: [{ title: &#39;AI工作台&#39;, pageId: &#39;sales_ai_workbench&#39;, icon: &#39;heroicons:sparkles&#39; }],
+      
+      // Decision Role Pages
+      &#39;decision_sales_personnel_management&#39;: [{ title: &#39;销售人员管理&#39;, pageId: &#39;decision_sales_personnel_management&#39;, icon: &#39;heroicons:user-group&#39; }],
+      &#39;decision_sales_personnel_detail&#39;: [
+        { title: &#39;销售人员管理&#39;, pageId: &#39;decision_sales_personnel_management&#39;, icon: &#39;heroicons:user-group&#39; },
+        { title: &#39;销售人员详情&#39;, pageId: &#39;decision_sales_personnel_detail&#39;, icon: &#39;heroicons:identification&#39; }
+      ],
+      &#39;decision_contract_approval_list&#39;: [{ title: &#39;合同审批&#39;, pageId: &#39;decision_contract_approval_list&#39;, icon: &#39;heroicons:clipboard-document-check&#39; }],
+      &#39;decision_contract_approval_detail&#39;: [
+        { title: &#39;合同审批&#39;, pageId: &#39;decision_contract_approval_list&#39;, icon: &#39;heroicons:clipboard-document-check&#39; },
+        { title: &#39;合同审批详情&#39;, pageId: &#39;decision_contract_approval_detail&#39;, icon: &#39;heroicons:document-check&#39; }
+      ],
+      &#39;decision_ai_workbench&#39;: [{ title: &#39;AI行为分析&#39;, pageId: &#39;decision_ai_workbench&#39;, icon: &#39;heroicons:chart-bar-square&#39; }],
+      
+      // Tech Role Pages
+      &#39;tech_personnel_management&#39;: [{ title: &#39;人员管理&#39;, pageId: &#39;tech_personnel_management&#39;, icon: &#39;heroicons:users&#39; }],
+      &#39;user_profile_edit&#39;: [
+        { title: &#39;人员管理&#39;, pageId: &#39;tech_personnel_management&#39;, icon: &#39;heroicons:users&#39; },
+        { title: &#39;用户信息编辑&#39;, pageId: &#39;user_profile_edit&#39;, icon: &#39;heroicons:pencil-square&#39; }
+      ],
+      &#39;tech_product_management&#39;: [{ title: &#39;商品管理&#39;, pageId: &#39;tech_product_management&#39;, icon: &#39;heroicons:cube&#39; }],
+      &#39;tech_new_product&#39;: [
+        { title: &#39;商品管理&#39;, pageId: &#39;tech_product_management&#39;, icon: &#39;heroicons:cube&#39; },
+        { title: &#39;新建商品&#39;, pageId: &#39;tech_new_product&#39;, icon: &#39;heroicons:plus-circle&#39; }
+      ],
+      &#39;tech_product_detail&#39;: [
+        { title: &#39;商品管理&#39;, pageId: &#39;tech_product_management&#39;, icon: &#39;heroicons:cube&#39; },
+        { title: &#39;商品详情&#39;, pageId: &#39;tech_product_detail&#39;, icon: &#39;heroicons:eye&#39; }
+      ],
+      &#39;tech_system_management&#39;: [{ title: &#39;后台系统管理&#39;, pageId: &#39;tech_system_management&#39;, icon: &#39;heroicons:cog-6-tooth&#39; }],
+      &#39;tech_system_log_viewer&#39;: [
+        { title: &#39;后台系统管理&#39;, pageId: &#39;tech_system_management&#39;, icon: &#39;heroicons:cog-6-tooth&#39; },
+        { title: &#39;系统日志&#39;, pageId: &#39;tech_system_log_viewer&#39;, icon: &#39;heroicons:document-text&#39; }
+      ],
+      &#39;tech_ai_workbench&#39;: [{ title: &#39;AI自动化运维&#39;, pageId: &#39;tech_ai_workbench&#39;, icon: &#39;heroicons:cpu-chip&#39; }],
+      
+      // Common Pages
+      &#39;user_profile_settings&#39;: [{ title: &#39;个人设置&#39;, pageId: &#39;user_profile_settings&#39;, icon: &#39;heroicons:user-circle&#39; }]
+    };
+    
+    return breadcrumbConfigs[pageId] || [];
+  };
+  
+  // Auto-generate breadcrumb for current page
+  window.autoSetBreadcrumb = function(pageId) {
+    const breadcrumbData = getPageBreadcrumb(pageId);
+    setBreadcrumb(breadcrumbData);
+  };
+  
+  // Custom breadcrumb for complex navigation paths
+  window.setCustomBreadcrumb = function(customPath) {
+    setBreadcrumb(customPath);
+  };
+})();
+</script>
+          <div class="flex-1 overflow-y-auto p-6 lg:p-8 igwkc3 spark-custom-igwkc3" id="igwkc3">
+            <div class="mx-auto max-w-7xl">
+              <section id="ContractDetailHeader" class="mb-8">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div class="flex items-center gap-4">
+                    <h1 class="text-3xl font-bold text-base-content">
+                      2025年度框架采购合同
+                    </h1>
+                    <div class="badge badge-success gap-2">
+                      <span class="iconify" data-icon="heroicons:check-circle-solid" data-width="16"></span>
+                      已生效
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <button class="btn btn-ghost i8k6wv spark-custom-i8k6wv" id="i8k6wv" onclick="navigateTo(&#39;sales_contract_list&#39;)">
+                      <span class="iconify" data-icon="heroicons:arrow-left" data-width="20"></span>
+                      返回合同列表</button><button class="btn btn-outline irdd1f spark-custom-irdd1f" id="irdd1f" onclick="handleEdit()">
+                      <span class="iconify" data-icon="heroicons:pencil-square" data-width="20"></span>
+                      编辑</button><button class="btn btn-outline ixjr9l spark-custom-ixjr9l" id="ixjr9l" onclick="handlePrint()">
+                      <span class="iconify" data-icon="heroicons:printer" data-width="20"></span>
+                      打印</button><button class="btn btn-primary" onclick="navigateTo(&#39;sales_contract_generate_download&#39;)">
+                      <span class="iconify" data-icon="heroicons:arrow-down-tray" data-width="20"></span>
+                      下载合同
+                    </button>
+                  </div>
+                </div>
+              </section>
+              <div class="space-y-6">
+                <section id="ContractBasicInfo" class="card bg-base-100 shadow-minimal">
+                  <div class="card-body">
+                    <h2 class="card-title text-lg font-semibold-custom">
+                      基本信息
+                    </h2>
+                    <div class="divider my-2"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-6 gap-x-8 pt-4">
+                      <div>
+                        <div class="text-sm text-base-content/70">合同编号</div>
+                        <div class="font-semibold text-base-content mt-1">
+                          CT-2025-09-00123
+                        </div>
+                      </div>
+                      <div>
+                        <div class="text-sm text-base-content/70">所属客户</div>
+                        <a class="font-semibold text-primary hover:underline mt-1 block" onclick="navigateTo(&#39;sales_customer_detail&#39;)">深圳市大疆创新科技有限公司</a>
+                      </div>
+                      <div>
+                        <div class="text-sm text-base-content/70">
+                          我方负责人
+                        </div>
+                        <div class="font-semibold text-base-content mt-1">
+                          王小明
+                        </div>
+                      </div>
+                      <div>
+                        <div class="text-sm text-base-content/70">
+                          合同总金额
+                        </div>
+                        <div class="text-2xl font-bold text-primary mt-1">
+                          ¥ 1,500,000.00
+                        </div>
+                      </div>
+                      <div>
+                        <div class="text-sm text-base-content/70">创建日期</div>
+                        <div class="font-semibold text-base-content mt-1">
+                          2025-08-15
+                        </div>
+                      </div>
+                      <div>
+                        <div class="text-sm text-base-content/70">生效日期</div>
+                        <div class="font-semibold text-base-content mt-1">
+                          2025-09-01
+                        </div>
+                      </div>
+                      <div>
+                        <div class="text-sm text-base-content/70">合同期限</div>
+                        <div class="font-semibold text-base-content mt-1">
+                          12 个月
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+                <section id="ContractProductList" class="card bg-base-100 shadow-minimal">
+                  <div class="card-body">
+                    <h2 class="card-title text-lg font-semibold-custom">
+                      产品清单
+                    </h2>
+                    <div class="divider my-2"></div>
+                    <div class="overflow-x-auto pt-4">
+                      <table class="table w-full">
+                        <thead>
+                          <tr>
+                            <th>产品名称</th>
+                            <th>型号</th>
+                            <th class="text-right">数量</th>
+                            <th class="text-right">单价 (元)</th>
+                            <th class="text-right">小计 (元)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr data-repeatable="true" class="hover">
+                            <td>
+                              <a class="link link-primary font-medium" onclick="navigateTo(&#39;tech_product_detail&#39;)">企业级AI服务套件</a>
+                            </td>
+                            <td>SaaS-Pro-V2</td>
+                            <td class="text-right">100 许可</td>
+                            <td class="text-right">12,000.00</td>
+                            <td class="text-right font-semibold">
+                              1,200,000.00
+                            </td>
+                          </tr>
+                          <tr data-repeatable="true" class="hover">
+                            <td>
+                              <a class="link link-primary font-medium" onclick="navigateTo(&#39;tech_product_detail&#39;)">优先技术支持服务</a>
+                            </td>
+                            <td>Support-Tier-1</td>
+                            <td class="text-right">1 年</td>
+                            <td class="text-right">300,000.00</td>
+                            <td class="text-right font-semibold">300,000.00</td>
+                          </tr>
+                        </tbody>
+                        <tfoot>
+                          <tr class="bg-base-200">
+                            <th colspan="4" class="text-right text-lg">
+                              产品总计
+                            </th>
+                            <th class="text-right text-lg font-bold">
+                              1,500,000.00
+                            </th>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </div>
+                </section>
+                <section id="ContractPartyInfo" class="card bg-base-100 shadow-minimal">
+                  <div class="card-body">
+                    <h2 class="card-title text-lg font-semibold-custom">
+                      甲乙方信息
+                    </h2>
+                    <div class="divider my-2"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                      <div class="space-y-4">
+                        <h3 class="text-base font-semibold text-base-content border-b border-base-200 pb-2">
+                          甲方信息 (客户)
+                        </h3>
+                        <div class="flex justify-between items-start gap-4">
+                          <span class="text-sm text-base-content/70">公司名称:</span><span class="font-medium text-right">深圳市大疆创新科技有限公司</span>
+                        </div>
+                        <div class="flex justify-between items-start gap-4">
+                          <span class="text-sm text-base-content/70">联系人:</span><span class="font-medium text-right">李女士</span>
+                        </div>
+                        <div class="flex justify-between items-start gap-4">
+                          <span class="text-sm text-base-content/70">联系电话:</span><span class="font-medium text-right">138****5678</span>
+                        </div>
+                        <div class="flex justify-between items-start gap-4">
+                          <span class="text-sm text-base-content/70">地址:</span><span class="font-medium text-right">广东省深圳市南山区高新南四道18号</span>
+                        </div>
+                      </div>
+                      <div class="space-y-4">
+                        <h3 class="text-base font-semibold text-base-content border-b border-base-200 pb-2">
+                          乙方信息 (我方)
+                        </h3>
+                        <div class="flex justify-between items-start gap-4">
+                          <span class="text-sm text-base-content/70">公司名称:</span><span class="font-medium text-right">智能未来科技有限公司</span>
+                        </div>
+                        <div class="flex justify-between items-start gap-4">
+                          <span class="text-sm text-base-content/70">联系人:</span><span class="font-medium text-right">王小明</span>
+                        </div>
+                        <div class="flex justify-between items-start gap-4">
+                          <span class="text-sm text-base-content/70">联系电话:</span><span class="font-medium text-right">139****1234</span>
+                        </div>
+                        <div class="flex justify-between items-start gap-4">
+                          <span class="text-sm text-base-content/70">地址:</span><span class="font-medium text-right">北京市海淀区中关村软件园</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+                <section id="ContractPaymentTerms" class="card bg-base-100 shadow-minimal">
+                  <div class="card-body">
+                    <h2 class="card-title text-lg font-semibold-custom">
+                      付款条款
+                    </h2>
+                    <div class="divider my-2"></div>
+                    <div class="prose prose-sm max-w-none text-base-content pt-4">
+                      <p>
+                        1. 合同生效后的5个工作日内，甲方向乙方支付合同总金额的
+                        <strong>50%</strong> 作为预付款，即
+                        <strong>¥750,000.00</strong>。
+                      </p>
+                      <p>
+                        2.
+                        在项目里程碑一（核心功能交付）完成并经甲方验收通过后的10个工作日内，甲方向乙方支付合同总金额的
+                        <strong>40%</strong>，即 <strong>¥600,000.00</strong>。
+                      </p>
+                      <p>
+                        3.
+                        所有服务交付完成，并经甲方最终验收合格后的15个工作日内，甲方向乙方支付剩余的
+                        <strong>10%</strong> 尾款，即
+                        <strong>¥150,000.00</strong>。
+                      </p>
+                      <p>
+                        4. 所有款项应支付至乙方指定的以下银行账户：<br>
+                        开户行：中国工商银行北京分行<br>
+                        账户名：智能未来科技有限公司<br>
+                        账号：6222 XXXX XXXX XXXX 1234
+                      </p>
+                    </div>
+                  </div>
+                </section>
+                <section id="ContractAttachments" class="card bg-base-100 shadow-minimal">
+                  <div class="card-body">
+                    <h2 class="card-title text-lg font-semibold-custom">
+                      合同附件
+                    </h2>
+                    <div class="divider my-2"></div>
+                    <div class="space-y-3 pt-4">
+                      <div data-repeatable="true" class="flex items-center justify-between p-3 bg-base-200 rounded-lg transition-shadow hover:shadow-sm">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                          <span class="iconify text-error text-2xl" data-icon="bxs:file-pdf"></span>
+                          <div class="truncate">
+                            <a href="#" class="font-medium text-base-content hover:text-primary truncate">2025年度框架采购合同_已盖章扫描件.pdf</a>
+                            <div class="text-xs text-base-content/60">
+                              2.5 MB
+                            </div>
+                          </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                          <button class="btn btn-ghost btn-sm">
+                            <span class="iconify" data-icon="heroicons:arrow-down-tray" data-width="18"></span>
+                            下载
+                          </button>
+                        </div>
+                      </div>
+                      <div data-repeatable="true" class="flex items-center justify-between p-3 bg-base-200 rounded-lg transition-shadow hover:shadow-sm">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                          <span class="iconify text-info text-2xl" data-icon="bxs:file-doc"></span>
+                          <div class="truncate">
+                            <a href="#" class="font-medium text-base-content hover:text-primary truncate">附件A_产品服务详细说明书.docx</a>
+                            <div class="text-xs text-base-content/60">
+                              876 KB
+                            </div>
+                          </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                          <button class="btn btn-ghost btn-sm">
+                            <span class="iconify" data-icon="heroicons:arrow-down-tray" data-width="18"></span>
+                            下载
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+                <section id="ContractApprovalAndSigning" class="card bg-base-100 shadow-minimal">
+                  <div class="card-body">
+                    <h2 class="card-title text-lg font-semibold-custom">
+                      合同审批与签署流程
+                    </h2>
+                    <div class="divider my-2"></div>
+                    <ul class="timeline timeline-vertical pt-6">
+                      <li>
+                        <div class="timeline-start timeline-box">
+                          <div class="font-semibold">合同提交</div>
+                          <time class="text-xs text-base-content/70">2025-08-15 10:30</time>
+                          <p class="mt-1 text-sm">
+                            由
+                            <strong>王小明</strong> 提交合同草案并发起审批流程。
+                          </p>
+                        </div>
+                        <div class="timeline-middle">
+                          <span class="iconify text-success" data-icon="heroicons:check-circle-solid" data-width="24"></span>
+                        </div>
+                        <hr class="bg-success">
+                      </li>
+                      <li>
+                        <hr class="bg-success">
+                        <div class="timeline-middle">
+                          <span class="iconify text-success" data-icon="heroicons:check-circle-solid" data-width="24"></span>
+                        </div>
+                        <div class="timeline-end timeline-box">
+                          <div class="font-semibold">部门经理审批</div>
+                          <time class="text-xs text-base-content/70">2025-08-16 09:45</time>
+                          <p class="mt-1 text-sm">
+                            审批人: <strong>张经理</strong>
+                          </p>
+                          <div class="collapse collapse-arrow bg-base-200/50 mt-2 text-sm">
+                            <input type="checkbox">
+                            <div class="collapse-title font-medium text-xs p-2 min-h-0 h-8 flex items-center">
+                              查看意见
+                            </div>
+                            <div class="collapse-content p-2">
+                              <p>同意。请法务部审核条款细节。</p>
+                            </div>
+                          </div>
+                        </div>
+                        <hr class="bg-error">
+                      </li>
+                      <li>
+                        <hr class="bg-error">
+                        <div class="timeline-middle">
+                          <span class="iconify text-error" data-icon="heroicons:x-circle-solid" data-width="24"></span>
+                        </div>
+                        <div class="timeline-start timeline-box">
+                          <div class="font-semibold">法务审批</div>
+                          <time class="text-xs text-base-content/70">2025-08-18 14:00</time>
+                          <p class="mt-1 text-sm">
+                            审批人: <strong>刘法务</strong>
+                          </p>
+                          <div class="text-error mt-2 p-2 bg-error/10 rounded-md text-sm">
+                            <div class="font-bold">驳回原因:</div>
+                            <p>
+                              第3.2条关于知识产权归属的描述不清晰，存在风险。请修改后重新提交。
+                            </p>
+                          </div>
+                        </div>
+                        <hr>
+                      </li>
+                      <li>
+                        <hr>
+                        <div class="timeline-middle">
+                          <span class="iconify text-base-content/30" data-icon="heroicons:clock" data-width="24"></span>
+                        </div>
+                        <div class="timeline-end timeline-box opacity-50">
+                          <div class="font-semibold">高层审批</div>
+                          <p class="mt-1 text-sm">等待上一环节通过...</p>
+                        </div>
+                        <hr>
+                      </li>
+                      <li>
+                        <hr>
+                        <div class="timeline-middle">
+                          <span class="iconify text-base-content/30" data-icon="heroicons:pencil-square" data-width="24"></span>
+                        </div>
+                        <div class="timeline-start timeline-box opacity-50">
+                          <div class="font-semibold">合同签署</div>
+                          <p class="mt-1 text-sm">等待审批完成...</p>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+    <script>
+/* JavaScript code for common usage, should be wrapped in a closure */
+(function() {
+  // Initialize APP_GLOBALS without resetting
+  window.APP_GLOBALS = window.APP_GLOBALS || {};
+  
+  // Navigation function for page transitions
+  window.navigateTo = function(targetPageId) {
+    const isInIframe = window.self !== window.top;
+    const targetFileName = `${targetPageId}.html`;
+    
+    if (isInIframe) {
+      window.parent.postMessage({
+        type: &#39;iframeNavigation&#39;,
+        targetPageId: targetPageId
+      }, &#39;*&#39;);
+    } else {
+      window.location.href = targetFileName;
+    }
+  };
+  
+  // Global search functionality
+  window.handleGlobalSearch = function() {
+    const searchInput = document.querySelector(&#39;#global-search-input&#39;);
+    if (searchInput &amp;&amp; searchInput.value.trim()) {
+      // Store search term for results page
+      sessionStorage.setItem(&#39;searchTerm&#39;, searchInput.value.trim());
+      navigateTo(&#39;search_result_page&#39;);
+    }
+  };
+  
+  // User menu toggle
+  window.toggleUserMenu = function() {
+    const menu = document.querySelector(&#39;#user-dropdown-menu&#39;);
+    if (menu) {
+      menu.classList.toggle(&#39;hidden&#39;);
+    }
+  };
+  
+  // Mobile menu toggle
+  window.toggleMobileMenu = function() {
+    const menu = document.querySelector(&#39;#mobile-menu&#39;);
+    if (menu) {
+      menu.classList.toggle(&#39;hidden&#39;);
+    }
+  };
+  
+  // Sidebar toggle functionality
+  window.toggleSidebar = function() {
+    const sidebar = document.querySelector(&#39;[data-section-type="common_sidebar"]&#39;);
+    if (sidebar) {
+      sidebar.classList.toggle(&#39;sidebar-collapsed&#39;);
+      // Store state in localStorage
+      const isCollapsed = sidebar.classList.contains(&#39;sidebar-collapsed&#39;);
+      localStorage.setItem(&#39;sidebar_collapsed&#39;, isCollapsed.toString());
+    }
+  };
+  
+  // Logout function
+  window.handleLogout = function() {
+    // Clear any stored session data
+    sessionStorage.clear();
+    // Navigate to login page
+    navigateTo(&#39;login&#39;);
+  };
+  
+  // User role detection and navigation setup
+  window.setupUserRoleNavigation = function(userRole) {
+    window.APP_GLOBALS.userRole = userRole;
+    
+    // Set appropriate dashboard based on role
+    const roleDashboards = {
+      &#39;sales&#39;: &#39;sales_dashboard&#39;,
+      &#39;decision&#39;: &#39;decision_dashboard&#39;, 
+      &#39;tech&#39;: &#39;tech_dashboard&#39;
+    };
+    
+    window.APP_GLOBALS.homeDashboard = roleDashboards[userRole] || &#39;login&#39;;
+  };
+  
+  // Initialize tooltips and other interactive elements
+  document.addEventListener(&#39;DOMContentLoaded&#39;, function() {
+    // Close dropdowns when clicking outside
+    document.addEventListener(&#39;click&#39;, function(e) {
+      const dropdowns = document.querySelectorAll(&#39;.dropdown-content&#39;);
+      dropdowns.forEach(dropdown => {
+        if (!dropdown.contains(e.target) &amp;&amp; !dropdown.previousElementSibling?.contains(e.target)) {
+          dropdown.classList.add(&#39;hidden&#39;);
+        }
+      });
+    });
+    
+    // Handle search on Enter key
+    const searchInput = document.querySelector(&#39;#global-search-input&#39;);
+    if (searchInput) {
+      searchInput.addEventListener(&#39;keypress&#39;, function(e) {
+        if (e.key === &#39;Enter&#39;) {
+          handleGlobalSearch();
+        }
+      });
+    }
+    
+    // Initialize any stored sidebar state
+    const sidebar = document.querySelector(&#39;[data-section-type="common_sidebar"]&#39;);
+    if (sidebar) {
+      const isCollapsed = localStorage.getItem(&#39;sidebar_collapsed&#39;) === &#39;true&#39;;
+      if (isCollapsed) {
+        sidebar.classList.add(&#39;sidebar-collapsed&#39;);
+      }
+    }
+  });
+})();
+</script><script>
+(function() {
+    document.addEventListener(&#39;DOMContentLoaded&#39;, function() {
+        // Automatically set the breadcrumb for this page
+        if (window.autoSetBreadcrumb) {
+            window.autoSetBreadcrumb(&#39;sales_contract_detail&#39;);
+        }
+
+        // Mock user role for testing purposes in standalone mode
+        // This ensures sidebar and header display correctly.
+        if (!window.APP_GLOBALS?.userRole) {
+            const userRole = &#39;sales&#39;;
+            window.APP_GLOBALS = window.APP_GLOBALS || {};
+            window.APP_GLOBALS.userRole = userRole;
+
+            if (window.setHeaderUserRole) {
+                window.setHeaderUserRole(userRole);
+            }
+            if (window.setSidebarUserRole) {
+                window.setSidebarUserRole(userRole);
+            }
+            if (window.setSidebarActive) {
+                // The detail page belongs to the &#39;contract&#39; module
+                window.setSidebarActive(&#39;sales_contract_list&#39;); 
+            }
+        }
+    });
+
+    // Stub function for &#39;Edit&#39; button
+    window.handleEdit = function() {
+        console.log("Edit contract action triggered.");
+        // In a real application, this would likely navigate to an edit page
+        // or open a modal for editing. For this demo, no action is taken.
+    };
+
+    // Stub function for &#39;Print&#39; button
+    window.handlePrint = function() {
+        console.log("Print contract action triggered.");
+        // This function triggers the browser&#39;s native print functionality.
+        window.print();
+    };
+
+})();
+</script>
+  
+
+<script>
+    setTimeout(() => {
+      Holder.run({
+        domain: "placehold.co"
+      })
+    }, 100)
+  </script></body></html>'></iframe>
+                    </div>
+                  </div>
+
+                </body>
+                </html>
+            
